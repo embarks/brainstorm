@@ -111,7 +111,7 @@ class QuizOne(unittest.TestCase):
 
           v2 = Vector(-5.955, -4.904, -1.874)
           w2 = Vector(-4.496, -8.755, 7.103)
-          self.assertEqual(56.397178000000004, v2*(w2)) # ✔
+          self.assertEqual(56.397178000000004, v2*w2) # ✔
 
 
 
