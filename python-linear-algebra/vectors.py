@@ -1,6 +1,7 @@
-from math import sqrt, acos
+from math import sqrt, acos, pi
 # TODO Decimal
 
+ZERO_VECTOR_EXCEPTION = "Zero vectors do not have a normalization"
 class Vector(object):
   """linear algebra intro"""
   def __init__(self, *coordinates):
@@ -33,6 +34,11 @@ class Vector(object):
         return Vector(*p)
     elif type(other) == type(self):
         return self.dot(other)
+  
+  def __div__(self, other):
+    if type(other) == type(1) or type(other) == type(1.0):
+        d = tuple(x / other for x in self)
+        return Vector(*d)
 
   def __sub__(self, other):
     p = tuple(x - y for x, y  in zip(self, other))
@@ -49,15 +55,17 @@ class Vector(object):
     try:
       return (1/self.get_magnitude()) * self
     except ZeroDivisionError:
-      raise Exception("Zero vectors do not have a normalization")
+      raise Exception(ZERO_VECTOR_EXCEPTION)
 
   def dot(self, other):
     return sum(x*y for x, y in zip(self, other))
 
-  def theta(self, other):
+  def theta(self, other, degrees=False):
     u1 = self.normalized()
     u2 = other.normalized()
-    return acos(u1.dot(u2))
+    if (degrees):
+      return acos(u1*u2) * 180/pi
+    return acos(u1*u2)
 
   __repr__ = __str__
 
@@ -112,8 +120,36 @@ class QuizOne(unittest.TestCase):
           v2 = Vector(-5.955, -4.904, -1.874)
           w2 = Vector(-4.496, -8.755, 7.103)
           self.assertEqual(56.397178000000004, v2*w2) # ✔
+      
+      """
+      Vectors are parallel if they are scalar multiples
+      2v is parallel to v, -v and 1/2v
 
+      Vectors are Orthogonal if their dot product is 0
 
+      0 vector is parallel and orthogonal to all other vectors
+      """
+
+      def test_parallel(self):
+        # parallel vectors
+        v = Vector(-7.579, -7.88)
+        w = Vector(22.7369, 23.64)
+        self.assertEqual(round(v.theta(w, degrees=True), 2), 180.0)
+
+        # neither orthogonal nor paralell
+        v = Vector(-2.029, 9.97, 4.172)
+        w = Vector(-9.231, -6.639, -7.245)
+        self.assertEqual(round(v.theta(w, degrees=True), 2), 121.60)
+
+        # orthogonal vectors
+        v = Vector(-2.328, -7.284, -1.214)
+        w = Vector(-1.821, 1.072, -2.94)
+        self.assertEqual(round(v.theta(w, degrees=True), 2), 90.0)
+
+        # Raises ZERO_VECTOR exception
+        v = Vector(2.118, 4.827)
+        w = Vector(0, 0)
+        with self.assertRaises(Exception):v.theta(w, degrees=True)
 
 if __name__ == "__main__":
     unittest.main()
